@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>HTML5 APIs + Bootstrap + Geolocation</title>
+
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+#drag-item {
+    width: 80px;
+    height: 80px;
+    background: #0d6efd;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    border-radius: 8px;
+}
+
+.drop-zone {
+    width: 150px;
+    height: 100px;
+    border: 2px dashed #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+</style>
+
+</head>
+
+<body class="bg-light">
+
+<div class="container py-4">
+
+    <h1 class="text-center mb-4">HTML5 APIs + Geolocation</h1>
+
+    <div class="row g-4">
+
+        <!-- Geolocation -->
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">Geolocation</h5>
+                    <button class="btn btn-success mb-3" onclick="getLocation()">Get Location</button>
+                    <div id="geo" class="alert alert-warning">Click button to get location</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drag & Drop -->
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <h5 class="text-primary">Drag & Drop</h5>
+                    <div id="drag-item" draggable="true" class="mx-auto mb-3">DRAG</div>
+                    <div class="drop-zone mx-auto" id="drop-zone">DROP</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Web Storage -->
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="text-primary">Web Storage</h5>
+                    <input type="text" id="input" class="form-control mb-2" placeholder="Enter data">
+                    <button class="btn btn-primary btn-sm" onclick="save()">Save</button>
+                    <button class="btn btn-secondary btn-sm" onclick="load()">Load</button>
+                    <div class="alert alert-info mt-3" id="data">No data</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// Geolocation
+function getLocation() {
+    const output = document.getElementById("geo");
+
+    if (!navigator.geolocation) {
+        output.innerHTML = "Geolocation not supported";
+        return;
+    }
+
+    output.innerHTML = "Getting location...";
+
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            const loc = {
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude
+            };
+
+            output.innerHTML = `
+                Latitude: ${loc.lat.toFixed(5)} <br>
+                Longitude: ${loc.lng.toFixed(5)} <br>
+                Accuracy: ${pos.coords.accuracy} m
+            `;
+        },
+        () => {
+            output.innerHTML = "<span class='text-danger'>Permission denied</span>";
+        },
+        {
+            enableHighAccuracy: true
+        }
+    );
+}
+
+// Drag & Drop
+const drag = document.getElementById("drag-item");
+const drop = document.getElementById("drop-zone");
+
+drag.ondragstart = e => e.dataTransfer.setData("id", e.target.id);
+drop.ondragover = e => e.preventDefault();
+drop.ondrop = e => {
+    e.preventDefault();
+    drop.appendChild(document.getElementById(e.dataTransfer.getData("id")));
+};
+
+// Storage
+function save() {
+    localStorage.setItem("data", document.getElementById("input").value);
+}
+
+function load() {
+    document.getElementById("data").innerText =
+        localStorage.getItem("data") || "No data";
+}
+
+window.onload = load;
+</script>
+
+</body>
+</html>
